@@ -1,4 +1,4 @@
-package edu.escuelaing.arem.first-project;
+package edu.escuelaing.arem.firstproject;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
