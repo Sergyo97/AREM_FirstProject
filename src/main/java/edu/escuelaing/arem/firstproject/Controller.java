@@ -6,7 +6,7 @@ import java.io.IOException;
  * Hello world!
  *
  */
-public class Controler {
+public class Controller {
     public static void main(String[] args) throws IOException
     {
         AppServer.initialize();
