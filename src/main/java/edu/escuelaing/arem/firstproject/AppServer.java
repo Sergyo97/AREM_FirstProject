@@ -109,7 +109,7 @@ public class AppServer {
                     out.print("\r\n");
                     out.print(hs.get(key).process());
                 }
-            } else if (element.contains(".ico")) {
+            } else if (element.contains("favicon.ico")) {
                 manageFavicon(out);
             }
         } catch (Exception e) {
