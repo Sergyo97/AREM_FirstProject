@@ -123,7 +123,7 @@ public class AppServer {
         String[] elements = route.split("/");
 
         try {
-            if (elements.length == 0) {
+            if (elements.length <= 1) {
                 readHTML("index.html", outputStream, out);
             } else {
                 String element = elements[elements.length - 1];
