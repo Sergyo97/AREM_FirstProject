@@ -14,19 +14,24 @@ import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import edu.escuelaing.arem.firstproject.model.Handler;
 import edu.escuelaing.arem.firstproject.model.UrlHandlers;
-import net.sf.image4j.codec.ico.ICODecoder;
-import net.sf.image4j.codec.ico.ICOEncoder;
 
+/**
+ *
+ * @author Sergio Ruiz
+ */
 public class AppServer {
 
     public static HashMap<String, Handler> hs = new HashMap<String, Handler>();
 
+    /**
+     * Method that listens to the port and calls the request handler
+     * @throws IOException
+     */
     static void listener() throws IOException {
 
         ServerSocket serverSocket = null;
@@ -69,11 +74,18 @@ public class AppServer {
 
     }
 
+    /**
+     * Initializes the method containing the annotations
+     */
     public static void initialize() {
         String st = "edu.escuelaing.arem.firstproject.POJO";
         bind(st);
     }
 
+    /**
+     * Loads methods that have annotations and adds them to a hashmap
+     * @param classpath path of the class that where it is instance
+     */
     public static void bind(String classpath) {
         try {
             Class cls = Class.forName(classpath);
@@ -88,6 +100,13 @@ public class AppServer {
         }
     }
 
+    /**
+     * Manages the arrival of the petition to determine which path to choose.
+     * @param request Petition Path String
+     * @param out Printwriter containing client socket
+     * @param outputStream Socket to handle
+     * @throws IOException
+     */
     private static void manageRequest(String request, PrintWriter out, OutputStream outputStream) throws IOException {
         String[] parts = request.trim().split("\n");
         String route = parts[0].split(" ")[1];
@@ -101,8 +120,6 @@ public class AppServer {
                 readHTML(element, outputStream, out);
             } else if (route.contains("/apps/")) {
                 readApps(elements, outputStream, out);
-            } else if (element.contains("favicon.ico")) {
-                // manageFavicon(out, outputStream);
             }
         } catch (Exception e) {
             // TODO: handle exception
@@ -111,7 +128,14 @@ public class AppServer {
 
     }
 
-    private static void readApps(String[] elements, OutputStream outputStream, PrintWriter out) {
+    /**
+     * Method that handles the reading and sending of the elements necessary for access to web applications. 
+     * @param elements list containing the path to the app you want to access
+     * @param outputStream Socket to handle
+     * @param out Printwriter containing client socket
+     * @throws IOException
+     */
+    private static void readApps(String[] elements, OutputStream outputStream, PrintWriter out) throws IOException{
         if (elements.length == 3) {
             String type = elements[1];
             String method = elements[2];
@@ -139,6 +163,13 @@ public class AppServer {
         }
     }
 
+    /**
+     * 
+     * @param element Piece of petition path to identify file type
+     * @param outputStream Socket to handle
+     * @param out Printwriter containing client socket
+     * @throws IOException
+     */
     private static void readHTML(String element, OutputStream outputStream, PrintWriter out) throws IOException {
         BufferedReader bf = new BufferedReader(
                 new FileReader(System.getProperty("user.dir") + "/resources/htmls/" + element));
@@ -152,6 +183,13 @@ public class AppServer {
         bf.close();
     }
 
+    /**
+     * 
+     * @param element Piece of petition path to identify file type
+     * @param outputStream Socket to handle
+     * @param out Printwriter containing client socket
+     * @throws IOException
+     */
     private static void readImage(String element, OutputStream outputStream, PrintWriter out) throws IOException {
         BufferedImage image = ImageIO.read(new File(System.getProperty("user.dir") + "/resources/images/" + element));
         ByteArrayOutputStream bytesArray = new ByteArrayOutputStream();
@@ -165,16 +203,10 @@ public class AppServer {
         System.out.println(System.getProperty("user.dir") + "/resources/images/" + element);
     }
 
-    // private static void manageFavicon(PrintWriter out, OutputStream outputStream)
-    // throws IOException {
-    // out.println("HTTP/1.1 200 OK\r");
-    // out.println("Content-Type: image/vnd.microsoft.icon\r");
-    // out.println("\r");
-    // BufferedImage image = (BufferedImage) ICODecoder
-    // .read(new File(System.getProperty("user.dir") +
-    // "\\resources\\images\\image.ico"));
-    // ICOEncoder.write(image, outputStream);
-    // }
+    /**
+     * Port through which you are going to listen
+     * @return port
+     */
 
     public static int getPort() {
         if (System.getenv("PORT") != null) {
