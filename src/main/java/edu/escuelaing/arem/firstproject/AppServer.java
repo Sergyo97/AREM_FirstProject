@@ -14,11 +14,14 @@ import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import edu.escuelaing.arem.firstproject.model.Handler;
 import edu.escuelaing.arem.firstproject.model.UrlHandlers;
+import net.sf.image4j.codec.ico.ICODecoder;
+import net.sf.image4j.codec.ico.ICOEncoder;
 
 public class AppServer {
 
@@ -52,7 +55,8 @@ public class AppServer {
                 while (!(inputLine = in.readLine()).equals("")) {
                     request += inputLine + "\n";
                     readRequest(request, out, clientSocket.getOutputStream());
-                    if (in.ready()) break;
+                    if (in.ready())
+                        break;
                 }
             } catch (NullPointerException e) {
                 // TODO: handle exception
@@ -105,6 +109,8 @@ public class AppServer {
                     out.print("\r\n");
                     out.print(hs.get(key).process());
                 }
+            } else if (element.contains(".ico")) {
+                manageFavicon();
             }
         } catch (Exception e) {
             // TODO: handle exception
@@ -138,6 +144,15 @@ public class AppServer {
         writeImage.writeBytes("\r\n");
         writeImage.write(bytesArray.toByteArray());
         System.out.println(System.getProperty("user.dir") + "\\resources\\images\\" + element);
+    }
+
+    private static void manageFavicon(PrintWriter out) throws IOException {
+        List<BufferedImage> images = ICODecoder.read(new File(System.getProperty("user.dir") + "images.ico"));
+        out.println("HTTP/1.1 200 OK\r");
+        out.println("Content-Type: image/vnd.microsoft.icon\r");
+        out.println("\r");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ICOEncoder.write(images.get(0), baos);
     }
 
     public static int getPort() {
