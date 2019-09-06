@@ -102,7 +102,7 @@ public class AppServer {
             } else if (route.contains("/apps/")) {
                 readApps(elements, outputStream, out);
             } else if (element.contains("favicon.ico")) {
-                manageFavicon(out, outputStream);
+                // manageFavicon(out, outputStream);
             }
         } catch (Exception e) {
             // TODO: handle exception
@@ -141,7 +141,7 @@ public class AppServer {
 
     private static void readHTML(String element, OutputStream outputStream, PrintWriter out) throws IOException {
         BufferedReader bf = new BufferedReader(
-                new FileReader(System.getProperty("user.dir") + "\\resources\\htmls\\" + element));
+                new FileReader(System.getProperty("user.dir") + "/resources/htmls/" + element));
         out.print("HTTP/1.1 200 OK \r\n");
         out.print("Content-Type: text/html \r\n");
         out.print("\r\n");
@@ -153,8 +153,7 @@ public class AppServer {
     }
 
     private static void readImage(String element, OutputStream outputStream, PrintWriter out) throws IOException {
-        BufferedImage image = ImageIO
-                .read(new File(System.getProperty("user.dir") + "\\resources\\images\\" + element));
+        BufferedImage image = ImageIO.read(new File(System.getProperty("user.dir") + "/resources/images/" + element));
         ByteArrayOutputStream bytesArray = new ByteArrayOutputStream();
         DataOutputStream writeImage = new DataOutputStream(outputStream);
         ImageIO.write(image, "jpg", bytesArray);
@@ -163,17 +162,19 @@ public class AppServer {
         writeImage.writeBytes("Content-Length: " + bytesArray.toByteArray().length + "\r\n");
         writeImage.writeBytes("\r\n");
         writeImage.write(bytesArray.toByteArray());
-        System.out.println(System.getProperty("user.dir") + "\\resources\\images\\" + element);
+        System.out.println(System.getProperty("user.dir") + "/resources/images/" + element);
     }
 
-    private static void manageFavicon(PrintWriter out, OutputStream outputStream) throws IOException {
-        out.println("HTTP/1.1 200 OK\r");
-        out.println("Content-Type: image/vnd.microsoft.icon\r");
-        out.println("\r");
-        BufferedImage image = (BufferedImage) ICODecoder
-                .read(new File(System.getProperty("user.dir") + "\\resources\\images\\image.ico"));
-        ICOEncoder.write(image, outputStream);
-    }
+    // private static void manageFavicon(PrintWriter out, OutputStream outputStream)
+    // throws IOException {
+    // out.println("HTTP/1.1 200 OK\r");
+    // out.println("Content-Type: image/vnd.microsoft.icon\r");
+    // out.println("\r");
+    // BufferedImage image = (BufferedImage) ICODecoder
+    // .read(new File(System.getProperty("user.dir") +
+    // "\\resources\\images\\image.ico"));
+    // ICOEncoder.write(image, outputStream);
+    // }
 
     public static int getPort() {
         if (System.getenv("PORT") != null) {
