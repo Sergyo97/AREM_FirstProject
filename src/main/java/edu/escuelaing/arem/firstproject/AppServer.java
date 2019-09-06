@@ -18,7 +18,7 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import edu.escuelaing.arem.firstproject.model.Handler;
-import edu.escuelaing.arem.firstproject.model.UrlHandler;
+import edu.escuelaing.arem.firstproject.model.UrlHandlers;
 
 public class AppServer {
 
@@ -75,7 +75,7 @@ public class AppServer {
             Class cls = Class.forName(classpath);
             for (Method m : cls.getMethods()) {
                 if (m.isAnnotationPresent(Web.class)) {
-                    Handler hd = new UrlHandler(m);
+                    Handler hd = new UrlHandlers(m);
                     hs.put("/apps/" + m.getAnnotation(Web.class).value(), hd);
                 }
             }

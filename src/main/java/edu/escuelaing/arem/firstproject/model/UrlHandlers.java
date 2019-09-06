@@ -2,11 +2,11 @@ package edu.escuelaing.arem.firstproject.model;
 
 import java.lang.reflect.Method;
 
-public class UrlHandler implements Handler {
+public class UrlHandlers implements Handler {
 
     private Method method;
 
-    public UrlHandler(Method m) {
+    public UrlHandlers(Method m) {
         this.method = m;
     }
 
