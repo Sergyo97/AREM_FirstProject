@@ -2,21 +2,26 @@ package edu.escuelaing.arem.firstproject.model;
 
 import java.lang.reflect.Method;
 
-public class URLHandler implements Handler {
+public class UrlHandler implements Handler {
 
     private Method method;
 
-    public URLHandler(Method m){
+    public UrlHandler(Method m) {
         this.method = m;
     }
 
-    public String process(){
+    public String process() {
         try {
             return (String) method.invoke(null, null);
         } catch (Exception e) {
-            //TODO: handler exception
+            // TODO: handler exception
             e.printStackTrace();
             return e.toString();
         }
     }
+
+	public String[] processParams() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

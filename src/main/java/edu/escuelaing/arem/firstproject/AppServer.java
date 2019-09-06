@@ -18,7 +18,7 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import edu.escuelaing.arem.firstproject.model.Handler;
-import edu.escuelaing.arem.firstproject.model.URLHandler;
+import edu.escuelaing.arem.firstproject.model.UrlHandler;
 
 public class AppServer {
 
@@ -51,14 +51,15 @@ public class AppServer {
             try {
                 while (!(inputLine = in.readLine()).equals("")) {
                     request += inputLine + "\n";
+                    readRequest(request, out, clientSocket.getOutputStream());
+                    if (in.ready()) break;
                 }
             } catch (NullPointerException e) {
                 // TODO: handle exception
                 out.print("HTTP/1.1 404 not Found \r\n");
             }
 
-            handleRequest(request, out, clientSocket.getOutputStream());
-
+            out.close();
             in.close();
         }
 
@@ -74,7 +75,7 @@ public class AppServer {
             Class cls = Class.forName(classpath);
             for (Method m : cls.getMethods()) {
                 if (m.isAnnotationPresent(Web.class)) {
-                    Handler hd = new URLHandler(m);
+                    Handler hd = new UrlHandler(m);
                     hs.put("/apps/" + m.getAnnotation(Web.class).value(), hd);
                 }
             }
@@ -83,28 +84,33 @@ public class AppServer {
         }
     }
 
-    private static void handleRequest(String request, PrintWriter out, OutputStream outputStream) throws IOException {
+    private static void readRequest(String request, PrintWriter out, OutputStream outputStream) throws IOException {
         String[] parts = request.trim().split("\n");
         String route = parts[0].split(" ")[1];
         String[] elements = route.split("/");
         String element = elements[elements.length - 1];
 
-        if (element.endsWith(".jpg")) {
-            readImage(element, outputStream, out);
-        } else if (element.endsWith(".html")) {
-            readHTML(element, outputStream, out);
-        } else if (route.contains("/apps")) {
-            if (elements.length == 3) {
-                String type = elements[1];
-                String method = elements[2];
-                String key = type + "/" + method;
-                System.out.println(hs.get(key));
-                out.print("HTTP/1.1 200 OK \r\n");
-                out.print("Content-Type: text/html \r\n");
-                out.print("\r\n");
-                out.print(hs.get(key).process());
+        try {
+            if (element.endsWith(".jpg")) {
+                readImage(element, outputStream, out);
+            } else if (element.endsWith(".html")) {
+                readHTML(element, outputStream, out);
+            } else if (route.contains("/apps/")) {
+                if (elements.length == 3) {
+                    String type = elements[1];
+                    String method = elements[2];
+                    String key = "/" + type + "/" + method;
+                    out.print("HTTP/1.1 200 OK \r\n");
+                    out.print("Content-Type: text/html \r\n");
+                    out.print("\r\n");
+                    out.print(hs.get(key).process());
+                }
             }
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
         }
+
     }
 
     private static void readHTML(String element, OutputStream outputStream, PrintWriter out) throws IOException {
