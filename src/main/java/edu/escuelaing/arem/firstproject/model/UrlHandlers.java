@@ -20,8 +20,13 @@ public class UrlHandlers implements Handler {
         }
     }
 
-	public String[] processParams() {
-		// TODO Auto-generated method stub
-		return null;
+	public String processParams(Object[] params) {
+        try {
+            return (String) method.invoke(null, params);
+        } catch (Exception e) {
+            // TODO: handler exception
+            e.printStackTrace();
+            return e.toString();
+        }
 	}
 }

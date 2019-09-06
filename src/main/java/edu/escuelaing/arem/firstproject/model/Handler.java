@@ -3,6 +3,6 @@ package edu.escuelaing.arem.firstproject.model;
 public interface Handler {
 
     public String process();
-    public String[] processParams();
+    public String processParams(Object[] params);
 
 }

@@ -54,7 +54,7 @@ public class AppServer {
             try {
                 while (!(inputLine = in.readLine()).equals("")) {
                     request += inputLine + "\n";
-                    readRequest(request, out, clientSocket.getOutputStream());
+                    manageRequest(request, out, clientSocket.getOutputStream());
                     if (in.ready())
                         break;
                 }
@@ -88,7 +88,7 @@ public class AppServer {
         }
     }
 
-    private static void readRequest(String request, PrintWriter out, OutputStream outputStream) throws IOException {
+    private static void manageRequest(String request, PrintWriter out, OutputStream outputStream) throws IOException {
         String[] parts = request.trim().split("\n");
         String route = parts[0].split(" ")[1];
         String[] elements = route.split("/");
@@ -100,23 +100,43 @@ public class AppServer {
             } else if (element.endsWith(".html")) {
                 readHTML(element, outputStream, out);
             } else if (route.contains("/apps/")) {
-                if (elements.length == 3) {
-                    String type = elements[1];
-                    String method = elements[2];
-                    String key = "/" + type + "/" + method;
-                    out.print("HTTP/1.1 200 OK \r\n");
-                    out.print("Content-Type: text/html \r\n");
-                    out.print("\r\n");
-                    out.print(hs.get(key).process());
-                }
+                readApps(elements, outputStream, out);
             } else if (element.contains("favicon.ico")) {
-                manageFavicon(out);
+                manageFavicon(out, outputStream);
             }
         } catch (Exception e) {
             // TODO: handle exception
             e.printStackTrace();
         }
 
+    }
+
+    private static void readApps(String[] elements, OutputStream outputStream, PrintWriter out) {
+        if (elements.length == 3) {
+            String type = elements[1];
+            String method = elements[2];
+            String key = "/" + type + "/" + method;
+
+            if (!elements[2].contains("?")) {
+                out.print("HTTP/1.1 200 OK \r\n");
+                out.print("Content-Type: text/html \r\n");
+                out.print("\r\n");
+                out.print(hs.get(key).process());
+            } else {
+                key = key.split("\\?")[0];
+                String paramString = elements[2].split("\\?")[1];
+                String[] paramValues = paramString.split("&");
+                Object[] params = new Object[paramValues.length];
+                for (int i = 0; i < paramValues.length; i++) {
+                    params[i] = paramValues[i].split("=")[1];
+                }
+                out.print("HTTP/1.1 200 OK \r\n");
+                out.print("Content-Type: text/html \r\n");
+                out.print("\r\n");
+                out.print(hs.get(key).processParams(params));
+
+            }
+        }
     }
 
     private static void readHTML(String element, OutputStream outputStream, PrintWriter out) throws IOException {
@@ -146,13 +166,13 @@ public class AppServer {
         System.out.println(System.getProperty("user.dir") + "\\resources\\images\\" + element);
     }
 
-    private static void manageFavicon(PrintWriter out) throws IOException {
-        List<BufferedImage> images = ICODecoder.read(new File(System.getProperty("user.dir") + "images.ico"));
+    private static void manageFavicon(PrintWriter out, OutputStream outputStream) throws IOException {
         out.println("HTTP/1.1 200 OK\r");
         out.println("Content-Type: image/vnd.microsoft.icon\r");
         out.println("\r");
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ICOEncoder.write(images.get(0), baos);
+        BufferedImage image = (BufferedImage) ICODecoder
+                .read(new File(System.getProperty("user.dir") + "\\resources\\images\\image.ico"));
+        ICOEncoder.write(image, outputStream);
     }
 
     public static int getPort() {
