@@ -29,7 +29,7 @@ To run the whole project.
 ### Web Deployment
 This project is deployed under Heroku
 
-[![Servidor Apache](https://www.herokucdn.com/deploy/button.png)](https://sergios-framework.herokuapp.com/apps/test)
+[![Servidor Apache](https://www.herokucdn.com/deploy/button.png)](https://sergios-framework.herokuapp.com)
 
 ### Use of POJOs applications 
 
