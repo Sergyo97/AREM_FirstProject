@@ -110,7 +110,7 @@ public class AppServer {
                     out.print(hs.get(key).process());
                 }
             } else if (element.contains(".ico")) {
-                manageFavicon();
+                manageFavicon(out);
             }
         } catch (Exception e) {
             // TODO: handle exception
