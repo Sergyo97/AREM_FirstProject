@@ -83,15 +83,15 @@ public class AppServer {
      * Initializes the method containing the annotations
      */
     public static void initialize() {
-        String st = "edu.escuelaing.arem.firstproject.POJO";
-        bind(st);
+        bind();
     }
 
     /**
      * Loads methods that have annotations and adds them to a hashmap
+     * 
      * @param classpath path of the class that where it is instance
      */
-    public static void bind(String classpath) {
+    public static void bind() {
         try {
             Reflections reflections = new Reflections("edu.escuelaing.arem.firstproject", new SubTypesScanner(false));
             Set<Class<? extends Object>> allClasses = reflections.getSubTypesOf(Object.class);
@@ -103,7 +103,7 @@ public class AppServer {
                         hs.put("/apps/" + m.getAnnotation(Web.class).value(), hd);
                     }
                 }
-            }    
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -121,15 +121,20 @@ public class AppServer {
         String[] parts = request.trim().split("\n");
         String route = parts[0].split(" ")[1];
         String[] elements = route.split("/");
-        String element = elements[elements.length - 1];
 
         try {
-            if (element.endsWith(".jpg")) {
-                readImage(element, outputStream, out);
-            } else if (element.endsWith(".html")) {
-                readHTML(element, outputStream, out);
-            } else if (route.contains("/apps/")) {
-                readApps(elements, outputStream, out);
+            if (elements.length == 0) {
+                readHTML("index.html", outputStream, out);
+            } else {
+                String element = elements[elements.length - 1];
+
+                if (element.endsWith(".jpg")) {
+                    readImage(element, outputStream, out);
+                } else if (element.endsWith(".html")) {
+                    readHTML(element, outputStream, out);
+                } else if (route.contains("/apps/")) {
+                    readApps(elements, outputStream, out);
+                }
             }
         } catch (Exception e) {
             // TODO: handle exception
