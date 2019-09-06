@@ -14,8 +14,12 @@ import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
+
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 
 import edu.escuelaing.arem.firstproject.model.Handler;
 import edu.escuelaing.arem.firstproject.model.UrlHandlers;
@@ -30,6 +34,7 @@ public class AppServer {
 
     /**
      * Method that listens to the port and calls the request handler
+     * 
      * @throws IOException
      */
     static void listener() throws IOException {
@@ -88,13 +93,17 @@ public class AppServer {
      */
     public static void bind(String classpath) {
         try {
-            Class cls = Class.forName(classpath);
-            for (Method m : cls.getMethods()) {
-                if (m.isAnnotationPresent(Web.class)) {
-                    Handler hd = new UrlHandlers(m);
-                    hs.put("/apps/" + m.getAnnotation(Web.class).value(), hd);
+            Reflections reflections = new Reflections("edu.escuelaing.arem.firstproject", new SubTypesScanner(false));
+            Set<Class<? extends Object>> allClasses = reflections.getSubTypesOf(Object.class);
+
+            for (Class cls : allClasses) {
+                for (Method m : cls.getMethods()) {
+                    if (m.isAnnotationPresent(Web.class)) {
+                        Handler hd = new UrlHandlers(m);
+                        hs.put("/apps/" + m.getAnnotation(Web.class).value(), hd);
+                    }
                 }
-            }
+            }    
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -102,8 +111,9 @@ public class AppServer {
 
     /**
      * Manages the arrival of the petition to determine which path to choose.
-     * @param request Petition Path String
-     * @param out Printwriter containing client socket
+     * 
+     * @param request      Petition Path String
+     * @param out          Printwriter containing client socket
      * @param outputStream Socket to handle
      * @throws IOException
      */
@@ -129,13 +139,15 @@ public class AppServer {
     }
 
     /**
-     * Method that handles the reading and sending of the elements necessary for access to web applications. 
-     * @param elements list containing the path to the app you want to access
+     * Method that handles the reading and sending of the elements necessary for
+     * access to web applications.
+     * 
+     * @param elements     list containing the path to the app you want to access
      * @param outputStream Socket to handle
-     * @param out Printwriter containing client socket
+     * @param out          Printwriter containing client socket
      * @throws IOException
      */
-    private static void readApps(String[] elements, OutputStream outputStream, PrintWriter out) throws IOException{
+    private static void readApps(String[] elements, OutputStream outputStream, PrintWriter out) throws IOException {
         if (elements.length == 3) {
             String type = elements[1];
             String method = elements[2];
@@ -165,9 +177,9 @@ public class AppServer {
 
     /**
      * 
-     * @param element Piece of petition path to identify file type
+     * @param element      Piece of petition path to identify file type
      * @param outputStream Socket to handle
-     * @param out Printwriter containing client socket
+     * @param out          Printwriter containing client socket
      * @throws IOException
      */
     private static void readHTML(String element, OutputStream outputStream, PrintWriter out) throws IOException {
@@ -185,9 +197,9 @@ public class AppServer {
 
     /**
      * 
-     * @param element Piece of petition path to identify file type
+     * @param element      Piece of petition path to identify file type
      * @param outputStream Socket to handle
-     * @param out Printwriter containing client socket
+     * @param out          Printwriter containing client socket
      * @throws IOException
      */
     private static void readImage(String element, OutputStream outputStream, PrintWriter out) throws IOException {
@@ -205,6 +217,7 @@ public class AppServer {
 
     /**
      * Port through which you are going to listen
+     * 
      * @return port
      */
 
