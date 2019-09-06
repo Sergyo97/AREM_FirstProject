@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Controller",
+            "request": "launch",
+            "mainClass": "edu.escuelaing.arem.firstproject.Controller",
+            "projectName": "first-project"
+        }
+    ]
+}

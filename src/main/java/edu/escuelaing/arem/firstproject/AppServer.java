@@ -2,11 +2,9 @@ package edu.escuelaing.arem.firstproject;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -50,15 +48,18 @@ public class AppServer {
             String request = "";
             String inputLine;
 
-            while (!(inputLine = in.readLine()).equals("")) {
-                request += inputLine + "\n";
+            try {
+                while (!(inputLine = in.readLine()).equals("")) {
+                    request += inputLine + "\n";
+                }
+            } catch (NullPointerException e) {
+                // TODO: handle exception
+                out.print("HTTP/1.1 404 not Found \r\n");
             }
-            
+
             handleRequest(request, out, clientSocket.getOutputStream());
 
-            out.close();
             in.close();
-            clientSocket.close();
         }
 
     }
@@ -74,7 +75,7 @@ public class AppServer {
             for (Method m : cls.getMethods()) {
                 if (m.isAnnotationPresent(Web.class)) {
                     Handler hd = new URLHandler(m);
-                    hs.put("/apps/" + m.getAnnotation(Web.class).value(), new URLHandler(m));
+                    hs.put("/apps/" + m.getAnnotation(Web.class).value(), hd);
                 }
             }
         } catch (Exception e) {
@@ -83,11 +84,9 @@ public class AppServer {
     }
 
     private static void handleRequest(String request, PrintWriter out, OutputStream outputStream) throws IOException {
-        System.out.println(request + "aaaaaaaaaaaaaaaaaa");
         String[] parts = request.trim().split("\n");
         String route = parts[0].split(" ")[1];
         String[] elements = route.split("/");
-        
         String element = elements[elements.length - 1];
 
         if (element.endsWith(".jpg")) {
@@ -98,8 +97,8 @@ public class AppServer {
             if (elements.length == 3) {
                 String type = elements[1];
                 String method = elements[2];
-                String key = "/apps" + type + "/" + method;
-                initialize();
+                String key = type + "/" + method;
+                System.out.println(hs.get(key));
                 out.print("HTTP/1.1 200 OK \r\n");
                 out.print("Content-Type: text/html \r\n");
                 out.print("\r\n");
@@ -110,7 +109,7 @@ public class AppServer {
 
     private static void readHTML(String element, OutputStream outputStream, PrintWriter out) throws IOException {
         BufferedReader bf = new BufferedReader(
-                new FileReader(System.getProperty("user.dir") + "/resources/htmls" + element));
+                new FileReader(System.getProperty("user.dir") + "\\resources\\htmls\\" + element));
         out.print("HTTP/1.1 200 OK \r\n");
         out.print("Content-Type: text/html \r\n");
         out.print("\r\n");
@@ -122,7 +121,8 @@ public class AppServer {
     }
 
     private static void readImage(String element, OutputStream outputStream, PrintWriter out) throws IOException {
-        BufferedImage image = ImageIO.read(new File(System.getProperty("user.dir") + "/resources/images/" + element));
+        BufferedImage image = ImageIO
+                .read(new File(System.getProperty("user.dir") + "\\resources\\images\\" + element));
         ByteArrayOutputStream bytesArray = new ByteArrayOutputStream();
         DataOutputStream writeImage = new DataOutputStream(outputStream);
         ImageIO.write(image, "jpg", bytesArray);

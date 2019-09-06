@@ -1,6 +1,5 @@
 package edu.escuelaing.arem.firstproject.model;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 public class URLHandler implements Handler {
@@ -20,9 +19,4 @@ public class URLHandler implements Handler {
             return e.toString();
         }
     }
-
-    public Class<? extends Annotation> annotationType() {
-        return null;
-    }
-
 }
