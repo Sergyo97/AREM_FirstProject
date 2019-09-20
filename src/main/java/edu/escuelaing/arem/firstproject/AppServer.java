@@ -15,6 +15,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.imageio.ImageIO;
 
@@ -28,9 +30,14 @@ import edu.escuelaing.arem.firstproject.model.UrlHandlers;
  *
  * @author Sergio Ruiz
  */
-public class AppServer implements Runnable{
+public class AppServer implements Runnable {
 
     public static HashMap<String, Handler> hs = new HashMap<String, Handler>();
+    static Socket clientSocket;
+
+    public AppServer(Socket clienSocket) {
+        this.clientSocket = clienSocket;
+    }
 
     /**
      * Method that listens to the port and calls the request handler
@@ -39,44 +46,26 @@ public class AppServer implements Runnable{
      */
     static void listener() throws IOException {
 
-        ServerSocket serverSocket = null;
+        System.out.println(Thread.currentThread().getId());
+
+        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        String request = "";
+        String inputLine;
+
         try {
-            serverSocket = new ServerSocket(getPort());
-        } catch (IOException e) {
-            System.err.println("Could not listen on port: 4567.");
-            System.exit(1);
-        }
-        while (true) {
-            Socket clientSocket = null;
-            try {
-                System.out.println("Ready to listen ...");
-                clientSocket = serverSocket.accept();
-            } catch (IOException e) {
-                System.err.println("Accept failed.");
-                System.exit(1);
+            while (!(inputLine = in.readLine()).equals("")) {
+                request += inputLine + "\n";
+                manageRequest(request, out, clientSocket.getOutputStream());
+                if (in.ready())
+                    break;
             }
-
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String request = "";
-            String inputLine;
-
-            try {
-                while (!(inputLine = in.readLine()).equals("")) {
-                    request += inputLine + "\n";
-                    manageRequest(request, out, clientSocket.getOutputStream());
-                    if (in.ready())
-                        break;
-                }
-            } catch (NullPointerException e) {
-                // TODO: handle exception
-                out.print("HTTP/1.1 404 not Found \r\n");
-            }
-
-            out.close();
-            in.close();
+        } catch (NullPointerException e) {
+            out.print("HTTP/1.1 404 not Found \r\n");
         }
 
+        out.close();
+        in.close();
     }
 
     /**
@@ -218,19 +207,6 @@ public class AppServer implements Runnable{
         writeImage.writeBytes("\r\n");
         writeImage.write(bytesArray.toByteArray());
         System.out.println(System.getProperty("user.dir") + "/resources/images/" + element);
-    }
-
-    /**
-     * Port through which you are going to listen
-     * 
-     * @return port
-     */
-
-    public static int getPort() {
-        if (System.getenv("PORT") != null) {
-            return Integer.parseInt(System.getenv("PORT"));
-        }
-        return 4567;
     }
 
     @Override
