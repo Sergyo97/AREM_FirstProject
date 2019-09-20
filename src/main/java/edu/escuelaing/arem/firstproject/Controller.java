@@ -1,6 +1,8 @@
 package edu.escuelaing.arem.firstproject;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Sergio Ruiz
@@ -16,6 +18,7 @@ public class Controller {
     public static void main(String[] args) throws IOException
     {
         AppServer.initialize();
-        AppServer.listener();
+        ExecutorService eService = Executors.newCachedThreadPool();
+        eService.submit(new AppServer());
     }
 }

@@ -28,7 +28,7 @@ import edu.escuelaing.arem.firstproject.model.UrlHandlers;
  *
  * @author Sergio Ruiz
  */
-public class AppServer {
+public class AppServer implements Runnable{
 
     public static HashMap<String, Handler> hs = new HashMap<String, Handler>();
 
@@ -231,6 +231,15 @@ public class AppServer {
             return Integer.parseInt(System.getenv("PORT"));
         }
         return 4567;
+    }
+
+    @Override
+    public void run() {
+        try {
+            listener();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
