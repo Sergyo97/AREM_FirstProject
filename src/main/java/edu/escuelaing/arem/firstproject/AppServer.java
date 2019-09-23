@@ -44,28 +44,33 @@ public class AppServer implements Runnable {
      * 
      * @throws IOException
      */
-    static void listener() throws IOException {
-
+    @Override
+    public void run() {
         System.out.println(Thread.currentThread().getId());
 
-        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String request = "";
-        String inputLine;
-
         try {
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String request = "";
+            String inputLine;
+
             while (!(inputLine = in.readLine()).equals("")) {
                 request += inputLine + "\n";
                 manageRequest(request, out, clientSocket.getOutputStream());
                 if (in.ready())
                     break;
             }
-        } catch (NullPointerException e) {
-            out.print("HTTP/1.1 404 not Found \r\n");
+
+            out.close();
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        out.close();
-        in.close();
+    }
+
+    static void listener() throws IOException {
+
     }
 
     /**
@@ -207,15 +212,6 @@ public class AppServer implements Runnable {
         writeImage.writeBytes("\r\n");
         writeImage.write(bytesArray.toByteArray());
         System.out.println(System.getProperty("user.dir") + "/resources/images/" + element);
-    }
-
-    @Override
-    public void run() {
-        try {
-            listener();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 }

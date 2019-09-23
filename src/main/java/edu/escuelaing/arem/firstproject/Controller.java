@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
  */
 public class Controller {
 
-    private static ExecutorService executorService = Executors.newCachedThreadPool();
+    private static ExecutorService executorService = Executors.newFixedThreadPool(5);
 
     /**
      *
