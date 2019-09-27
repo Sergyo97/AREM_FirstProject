@@ -1,5 +1,5 @@
 
-# Web Server (Apache)
+# Concurrent Web Server (Apache)
 
 Server capable of delivering HTML pages and PNG type images, where an IoC framework is provided for the construction of web applications from POJOs, attending multiple non concurrent requests.
 
